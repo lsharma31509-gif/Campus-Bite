@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ "Create account" if mode == "register" else "Log in" }} | CampusBite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="auth-page">
+    <nav class="navbar">
+        <a class="logo" href="{{ url_for('login') }}">Campus<span>Bite.</span></a>
+        <a class="nav-btn" href="{{ url_for('register' if mode == 'login' else 'login') }}">
+            {{ "Create account" if mode == "login" else "Log in" }}
+        </a>
+    </nav>
+
+    <main class="auth-main">
+        <section class="auth-card">
+            <p class="eyebrow">CAMPUSBITE · UNIVERSITY ACCESS</p>
+            <h1>{{ "Welcome back." if mode == "login" else "Join CampusBite." }}</h1>
+            <p class="auth-intro">
+                {{ "Log in with your university registration ID." if mode == "login"
+                   else "Create an account with your university registration ID." }}
+            </p>
+
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <p class="auth-message" role="status">{{ messages[0] }}</p>
+                {% endif %}
+            {% endwith %}
+            {% if error %}
+                <p class="auth-error" role="alert">{{ error }}</p>
+            {% endif %}
+
+            <form class="auth-form" method="post">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <div class="honeypot" aria-hidden="true">
+                    <label for="website">Leave this field empty</label>
+                    <input id="website" name="website" type="text"
+                           tabindex="-1" autocomplete="off">
+                </div>
+                <label for="registration_id">University registration ID</label>
+                <input id="registration_id" name="registration_id" type="text"
+                       inputmode="numeric" pattern="[0-9]{8}" minlength="8" maxlength="8"
+                       autocomplete="username" required
+                       placeholder="e.g. 12513572" value="{{ registration_id }}">
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password"
+                       minlength="8" maxlength="128"
+                       autocomplete="{{ 'current-password' if mode == 'login' else 'new-password' }}"
+                       required placeholder="{{ 'Enter your password' if mode == 'login' else 'At least 8 characters' }}">
+
+                <button class="auth-submit" type="submit">
+                    {{ "Log in" if mode == "login" else "Create account" }}
+                </button>
+            </form>
+
+            <p class="auth-switch">
+                {{ "Don't have an account?" if mode == "login" else "Already registered?" }}
+                <a href="{{ url_for('register' if mode == 'login' else 'login') }}">
+                    {{ "Register" if mode == "login" else "Log in" }}
+                </a>
+            </p>
+            <p class="auth-note">
+                Registration ID format is checked, but enrollment is not verified by the university.
+                Automatic bot checks run in the background; no CAPTCHA puzzle is shown.
+            </p>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CampusBite | Smart Campus Food</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a class="logo" href="/">Campus<span>Bite.</span></a>
+        <div class="nav-links">
+            <a href="#canteens">Explore</a>
+            <a href="#how">How it works</a>
+        </div>
+        <div class="nav-session">
+            <span class="nav-account-id">ID {{ registration_id }}</span>
+            {% if is_admin %}
+                <a class="dashboard-link" href="{{ url_for('admin_dashboard') }}">Admin dashboard</a>
+            {% endif %}
+            <form method="post" action="{{ url_for('logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button class="logout-button" type="submit">Log out</button>
+            </form>
+        </div>
+        <a class="nav-btn" href="#canteens">Find Food ↗</a>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <p class="eyebrow">YOUR CAMPUS, YOUR CRAVINGS</p>
+                <h1>Hungry? Find your<br>
+                    <span>next favourite.</span></h1>
+                <p class="subtitle">
+                    Discover campus canteens, explore menus
+                    and check food availability before you go.
+                </p>
+
+                <form class="search" id="searchForm">
+                    <span>⌕</span>
+                    <input id="foodSearch"
+                           type="search"
+                           placeholder="Search food or canteen..."
+                           aria-label="Search food or canteen">
+                    <button type="submit">Search</button>
+                </form>
+
+                <p class="hint">Discover food. Skip the guesswork.</p>
+            </div>
+
+            <div class="hero-art">
+                <div class="orbit orbit-one"></div>
+                <div class="orbit orbit-two"></div>
+                <div class="food-emoji">🍔</div>
+                <div class="floating-card">
+                    <span class="live-dot"></span>
+                    Your next meal starts here
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="canteens">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">THE CAMPUS FOOD GUIDE</p>
+                    <h2>What's on the menu?</h2>
+                    <p class="subtitle">Your cravings, all in one place.</p>
+                </div>
+                <span class="count" id="itemCount">18 menu items</span>
+            </div>
+
+            <div class="menu-tools">
+                <input id="menuSearch" type="search"
+                       placeholder="Search dosa, maggi, coffee..."
+                       aria-label="Search menu items">
+                <select id="categoryFilter" aria-label="Filter by category">
+                    <option value="all">All food</option>
+                    <option value="meals">Meals</option>
+                    <option value="snacks">Snacks</option>
+                    <option value="beverages">Beverages</option>
+                </select>
+            </div>
+
+            <details class="add-menu-panel">
+                <summary>＋ Add menu item</summary>
+                <form id="addMenuForm" class="add-menu-form">
+                    <label>
+                        Food name
+                        <input id="newItemName" name="name" type="text"
+                               maxlength="50" required placeholder="e.g. Idli">
+                    </label>
+                    <label>
+                        Category
+                        <select id="newItemCategory" name="category" required>
+                            <option value="meals">Meals</option>
+                            <option value="snacks">Snacks</option>
+                            <option value="beverages">Beverages</option>
+                        </select>
+                    </label>
+                    <label>
+                        Full price (₹)
+                        <input id="newItemPrice" name="price" type="number"
+                               min="0.01" step="0.01" required placeholder="e.g. 50">
+                    </label>
+                    <button type="submit">Add to menu</button>
+                </form>
+                <p id="addMenuMessage" class="form-message" role="status" hidden></p>
+            </details>
+
+            <div class="food-grid" id="foodGrid"></div>
+
+            <p id="noResults" class="no-results" hidden>
+                No matching food found. Try another search!
+            </p>
+
+            <details class="cart-panel" id="cartPanel">
+                <summary>Your Cart <span id="cartCount">0 items</span></summary>
+                <div id="cartItems" class="cart-items"></div>
+                <p class="cart-total">Cart total: <strong id="cartTotal">₹0</strong></p>
+                <label class="portion-label" for="pickupBuilding">
+                    LPU canteen pickup location
+                    <select id="pickupBuilding" class="portion-choice">
+                        <option value="">Select a canteen pickup location</option>
+                        <option value="Building 25 - Ground Floor">Building 25 · Ground Floor</option>
+                        <option value="Building 26 - Ground Floor">Building 26 · Ground Floor</option>
+                        <option value="Building 27 - Ground Floor">Building 27 · Ground Floor</option>
+                        <option value="Building 28 - Ground Floor">Building 28 · Ground Floor</option>
+                        <option value="Building 29 - Ground Floor">Building 29 · Ground Floor</option>
+                        <option value="Building 30 - Ground Floor">Building 30 · Ground Floor</option>
+                        <option value="Building 31 - Ground Floor">Building 31 · Ground Floor</option>
+                        <option value="Building 32 - Ground Floor">Building 32 · Ground Floor</option>
+                        <option value="Building 33 - Ground Floor">Building 33 · Ground Floor</option>
+                        <option value="Building 34 - Ground Floor">Building 34 · Ground Floor</option>
+                        <option value="Building 35 - Ground Floor">Building 35 · Ground Floor</option>
+                        <option value="Building 36 - Ground Floor">Building 36 · Ground Floor</option>
+                        <option value="Building 37 - Ground Floor">Building 37 · Ground Floor</option>
+                        <option value="Building 38 - Ground Floor">Building 38 · Ground Floor</option>
+                    </select>
+                </label>
+                <p class="location-note">Ground-floor locations are based on your information. Canteen names have not been provided.</p>
+                <button id="placeOrderButton" class="place-order-button"
+                        type="button" disabled>Place Order</button>
+            </details>
+            <section id="orderReceipt" class="order-receipt" aria-live="polite" hidden>
+                <h3>Order placed</h3>
+                <p id="orderLocation"></p>
+                <div id="orderItems" class="cart-items"></div>
+                <p class="cart-total">Order total: <strong id="orderTotal"></strong></p>
+                <p id="orderMessage" class="form-message"></p>
+            </section>
+            <p id="cartFeedback" class="form-message" role="status"
+               aria-live="polite" hidden></p>
+
+            <p class="disclaimer">
+                Demo content only — prices, canteens and availability
+                are illustrative. Demo orders are not sent to a canteen.
+            </p>
+        </section>
+
+        <section class="how" id="how">
+            <p class="eyebrow">SIMPLE. SMART. CONVENIENT.</p>
+            <h2>Your next meal, in three steps.</h2>
+            <div class="steps">
+                <div><span>01</span><h3>Discover</h3>
+                    <p>Explore canteens around your campus.</p></div>
+                <div><span>02</span><h3>Check</h3>
+                    <p>Compare menus and prices in one place.</p></div>
+                <div><span>03</span><h3>Enjoy</h3>
+                    <p>Choose your meal with more confidence.</p></div>
+            </div>
+        </section>
+    </main>
+
+    <footer>CampusBite © 2026 · Built for campus life.</footer>
+
+    <script>
+        const form = document.getElementById("searchForm");
+        const foodSearch = document.getElementById("foodSearch");
+        const menuSearch = document.getElementById("menuSearch");
+        const categoryFilter = document.getElementById("categoryFilter");
+        const foodGrid = document.getElementById("foodGrid");
+        const noResults = document.getElementById("noResults");
+        const itemCount = document.getElementById("itemCount");
+        const addMenuForm = document.getElementById("addMenuForm");
+        const addMenuMessage = document.getElementById("addMenuMessage");
+        const cartItems = document.getElementById("cartItems");
+        const cartCount = document.getElementById("cartCount");
+        const cartTotal = document.getElementById("cartTotal");
+        const cartPanel = document.getElementById("cartPanel");
+        const cartFeedback = document.getElementById("cartFeedback");
+        const pickupBuilding = document.getElementById("pickupBuilding");
+        const orderReceipt = document.getElementById("orderReceipt");
+        const orderLocation = document.getElementById("orderLocation");
+        const orderItems = document.getElementById("orderItems");
+        const orderTotal = document.getElementById("orderTotal");
+        const orderMessage = document.getElementById("orderMessage");
+        const placeOrderButton = document.getElementById("placeOrderButton");
+        const cart = new Map();
+        const csrfToken = {{ csrf_token|tojson }};
+        let cartSaveQueue = Promise.resolve();
+
+        const menuItems = [
+            { name: "Masala Dosa", category: "meals", price: 60, emoji: "🥞" },
+            { name: "Chole Bhature", category: "meals", price: 80, emoji: "🍛" },
+            { name: "Veg Thali", category: "meals", price: 100, emoji: "🍱" },
+            { name: "Paneer Roll", category: "meals", price: 70, emoji: "🌯" },
+            { name: "Veg Fried Rice", category: "meals", price: 80, emoji: "🍚" },
+            { name: "Rajma Rice", category: "meals", price: 70, emoji: "🍛" },
+            { name: "Classic Burger", category: "snacks", price: 60, emoji: "🍔" },
+            { name: "Cheese Pizza", category: "snacks", price: 90, emoji: "🍕" },
+            { name: "Veg Sandwich", category: "snacks", price: 40, emoji: "🥪" },
+            { name: "Samosa", category: "snacks", price: 15, emoji: "🥟" },
+            { name: "Masala Maggi", category: "snacks", price: 40, emoji: "🍜" },
+            { name: "French Fries", category: "snacks", price: 50, emoji: "🍟" },
+            { name: "Aloo Paratha", category: "snacks", price: 45, emoji: "🫓" },
+            { name: "Veg Momos", category: "snacks", price: 60, emoji: "🥟" },
+            { name: "Cold Coffee", category: "beverages", price: 50, emoji: "🥤" },
+            { name: "Masala Chai", category: "beverages", price: 15, emoji: "☕" },
+            { name: "Fresh Lime Soda", category: "beverages", price: 35, emoji: "🍋" },
+            { name: "Chocolate Shake", category: "beverages", price: 70, emoji: "🥛" }
+        ];
+
+        const foodPhotos = {
+            "Masala Dosa": "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Masala_dosa_01.jpg/960px-Masala_dosa_01.jpg",
+            "Chole Bhature": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9c/Chole_Bhature%2C_a_popular_North_Indian_dish.jpg/960px-Chole_Bhature%2C_a_popular_North_Indian_dish.jpg",
+            "Veg Thali": "photo-1546833999-b9f581a1996d",
+            "Paneer Roll": "photo-1626700051175-6818013e1d4f",
+            "Veg Fried Rice": "photo-1603133872878-684f208fb84b",
+            "Rajma Rice": "photo-1512058564366-18510be2db19",
+            "Classic Burger": "photo-1568901346375-23c9450c58cd",
+            "Cheese Pizza": "photo-1574071318508-1cdbab80d002",
+            "Veg Sandwich": "photo-1528735602780-2552fd46c7af",
+            "Samosa": "photo-1601050690597-df0568f70950",
+            "Masala Maggi": "photo-1569718212165-3a8278d5f624",
+            "French Fries": "photo-1573080496219-bb080dd4f877",
+            "Aloo Paratha": "photo-1547592180-85f173990554",
+            "Veg Momos": "photo-1563245372-f21724e3856d",
+            "Cold Coffee": "photo-1517701604599-bb29b565090c",
+            "Masala Chai": "photo-1571934811356-5cc061b6821f",
+            "Fresh Lime Soda": "photo-1551024709-8f23befc6f87",
+            "Chocolate Shake": "photo-1572490122747-3968b75cc699"
+        };
+        const categoryPhotos = {
+            meals: "photo-1546833999-b9f581a1996d",
+            snacks: "photo-1528735602780-2552fd46c7af",
+            beverages: "photo-1517701604599-bb29b565090c"
+        };
+        const foodPhotoCredits = {
+            "Masala Dosa": {
+                url: "https://commons.wikimedia.org/wiki/File:Masala_dosa_01.jpg",
+                label: "Photo: Marajozkee · CC BY-SA 4.0"
+            },
+            "Chole Bhature": {
+                url: "https://commons.wikimedia.org/wiki/File:Chole_Bhature,_a_popular_North_Indian_dish.jpg",
+                label: "Photo: পাপৰি বৰা · CC BY-SA 4.0"
+            }
+        };
+
+        function getFoodPhotoUrl(item) {
+            const photo = foodPhotos[item.name] || categoryPhotos[item.category];
+            return photo.startsWith("http")
+                ? photo
+                : `https://images.unsplash.com/${photo}?auto=format&fit=crop&w=800&q=85`;
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, character => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            })[character]);
+        }
+
+        function formatPrice(price) {
+            return Number(price).toFixed(2).replace(/\.00$/, "");
+        }
+
+        function getItemPrice(itemIndex, portion) {
+            const price = menuItems[itemIndex].price;
+            return portion === "half" ? price / 2 : price;
+        }
+
+        function cartPayload() {
+            return [...cart.values()].map(entry => {
+                const item = menuItems[entry.itemIndex];
+                return {
+                    name: item.name,
+                    category: item.category,
+                    price: item.price,
+                    portion: entry.portion,
+                    quantity: entry.quantity
+                };
+            });
+        }
+
+        async function sendCartRequest(url, method, payload) {
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-Token": csrfToken
+                },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || "Could not save your cart. Please try again.");
+            }
+            return result;
+        }
+
+        async function saveCart() {
+            const payload = {
+                items: cartPayload(),
+                pickup_location: pickupBuilding.value
+            };
+            cartSaveQueue = cartSaveQueue
+                .catch(() => {})
+                .then(() => sendCartRequest("/api/cart", "POST", payload));
+            await cartSaveQueue;
+        }
+
+        async function loadCart() {
+            const response = await fetch("/api/cart");
+            const result = await response.json();
+            if (!response.ok) {
+                throw new Error(result.error || "Could not load your saved cart.");
+            }
+            pickupBuilding.value = result.pickup_location || "";
+            for (const savedItem of result.items) {
+                let itemIndex = menuItems.findIndex(item => item.name === savedItem.name);
+                if (itemIndex === -1) {
+                    itemIndex = menuItems.push({
+                        name: savedItem.name,
+                        category: savedItem.category,
+                        price: savedItem.price,
+                        emoji: savedItem.category === "meals" ? "🍽️" :
+                            savedItem.category === "snacks" ? "🥨" : "🥤"
+                    }) - 1;
+                }
+                cart.set(`${itemIndex}-${savedItem.portion}`, {
+                    itemIndex,
+                    portion: savedItem.portion,
+                    quantity: savedItem.quantity
+                });
+            }
+        }
+
+        function showCartError(error) {
+            console.error(error);
+            cartFeedback.textContent = error.message;
+            cartFeedback.hidden = false;
+        }
+
+        function renderMenu() {
+            const query = menuSearch.value.trim().toLowerCase();
+            const category = categoryFilter.value;
+            const filtered = menuItems.map((item, index) => ({ item, index })).filter(({ item }) => {
+                const matchesSearch =
+                    `${item.name} ${item.category}`.toLowerCase().includes(query);
+                const matchesCategory =
+                    category === "all" || item.category === category;
+                return matchesSearch && matchesCategory;
+            });
+
+            foodGrid.innerHTML = filtered.map(({ item, index }) => `
+                <article class="food-card">
+                    <div class="food-image ${item.category}">
+                        <span class="category">VEG · ${item.category.toUpperCase()}</span>
+                        <img class="food-photo"
+                             src="${getFoodPhotoUrl(item)}"
+                             alt="${escapeHtml(item.name)}"
+                             loading="lazy"
+                             onerror="this.hidden=true; this.nextElementSibling.hidden=false">
+                        <span class="food-picture" hidden>${item.emoji}</span>
+                        ${foodPhotoCredits[item.name] ? `<a class="photo-credit" href="${foodPhotoCredits[item.name].url}" target="_blank" rel="noopener noreferrer">${foodPhotoCredits[item.name].label}</a>` : ""}
+                    </div>
+                    <div class="card-body">
+                        <p class="canteen-name">CAMPUSBITE MENU</p>
+                        <h3>${escapeHtml(item.name)}</h3>
+                        <div class="card-bottom">
+                            <span class="price">₹${formatPrice(item.price)}</span>
+                            <span class="half-price">
+                                Half plate: ₹${formatPrice(item.price / 2)}
+                            </span>
+                        </div>
+                        <label class="portion-label">
+                            Portion
+                            <select class="portion-choice" aria-label="Choose portion for ${escapeHtml(item.name)}">
+                                <option value="full">Full plate · ₹${formatPrice(item.price)}</option>
+                                <option value="half">Half plate · ₹${formatPrice(item.price / 2)}</option>
+                            </select>
+                        </label>
+                        <button class="add-to-cart-button" type="button"
+                                data-add-to-cart="${index}">Add to Cart</button>
+                    </div>
+                </article>
+            `).join("");
+
+            noResults.hidden = filtered.length > 0;
+            itemCount.textContent = `${filtered.length} menu items`;
+        }
+
+        function renderCart() {
+            const entries = [...cart.entries()];
+            const quantityCount = entries.reduce((sum, [, entry]) => sum + entry.quantity, 0);
+            const total = entries.reduce((sum, [, entry]) =>
+                sum + getItemPrice(entry.itemIndex, entry.portion) * entry.quantity, 0);
+
+            cartCount.textContent = `${quantityCount} ${quantityCount === 1 ? "item" : "items"}`;
+            cartTotal.textContent = `₹${formatPrice(total)}`;
+            placeOrderButton.disabled = entries.length === 0;
+            cartItems.innerHTML = entries.length ? entries.map(([key, entry]) => {
+                const item = menuItems[entry.itemIndex];
+                const unitPrice = getItemPrice(entry.itemIndex, entry.portion);
+                return `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <span>${entry.portion === "half" ? "Half" : "Full"} plate · ₹${formatPrice(unitPrice)}</span>
+                        </div>
+                        <div class="cart-quantity">
+                            <button type="button" data-cart-action="decrease"
+                                    data-cart-key="${key}" aria-label="Remove one ${escapeHtml(item.name)}">−</button>
+                            <span>${entry.quantity}</span>
+                            <button type="button" data-cart-action="increase"
+                                    data-cart-key="${key}" aria-label="Add one ${escapeHtml(item.name)}">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join("") : '<p class="cart-empty">Your cart is empty. Add food to start an order.</p>';
+        }
+
+        addMenuForm.addEventListener("submit", event => {
+            event.preventDefault();
+            const name = document.getElementById("newItemName").value.trim();
+            const category = document.getElementById("newItemCategory").value;
+            const price = Number(document.getElementById("newItemPrice").value);
+            const validCategories = ["meals", "snacks", "beverages"];
+
+            if (!name || !Number.isFinite(price) || price <= 0 ||
+                !validCategories.includes(category)) {
+                addMenuMessage.textContent = "Enter a food name, category, and price above ₹0.";
+                addMenuMessage.hidden = false;
+                return;
+            }
+
+            if (menuItems.some(item => item.name.toLowerCase() === name.toLowerCase())) {
+                addMenuMessage.textContent = "That food item is already on the menu.";
+                addMenuMessage.hidden = false;
+                return;
+            }
+
+            const emojiByCategory = { meals: "🍽️", snacks: "🥨", beverages: "🥤" };
+            menuItems.push({ name, category, price, emoji: emojiByCategory[category] });
+            addMenuForm.reset();
+            addMenuMessage.textContent = `${name} added to the menu.`;
+            addMenuMessage.hidden = false;
+            renderMenu();
+        });
+
+        foodGrid.addEventListener("click", event => {
+            const button = event.target.closest("[data-add-to-cart]");
+            if (!button) return;
+
+            const itemIndex = Number(button.dataset.addToCart);
+            if (!Number.isInteger(itemIndex) || !menuItems[itemIndex]) return;
+
+            const portion = button.closest(".card-body").querySelector(".portion-choice").value;
+            const key = `${itemIndex}-${portion}`;
+            const entry = cart.get(key);
+            cart.set(key, entry
+                ? { ...entry, quantity: entry.quantity + 1 }
+                : { itemIndex, portion, quantity: 1 });
+            orderReceipt.hidden = true;
+            cartFeedback.textContent =
+                `${menuItems[itemIndex].name} (${portion} plate) added to your cart.`;
+            cartFeedback.hidden = false;
+            button.textContent = "Added ✓";
+            window.setTimeout(() => {
+                if (button.isConnected) button.textContent = "Add to Cart";
+            }, 1200);
+            cartPanel.open = true;
+            renderCart();
+            saveCart().catch(showCartError);
+            cartPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+
+        cartItems.addEventListener("click", event => {
+            const button = event.target.closest("[data-cart-action]");
+            if (!button) return;
+
+            const entry = cart.get(button.dataset.cartKey);
+            if (!entry) return;
+
+            if (button.dataset.cartAction === "increase") {
+                entry.quantity += 1;
+            } else if (button.dataset.cartAction === "decrease") {
+                entry.quantity -= 1;
+                if (entry.quantity <= 0) cart.delete(button.dataset.cartKey);
+            }
+            renderCart();
+            saveCart().catch(showCartError);
+        });
+
+        placeOrderButton.addEventListener("click", async () => {
+            if (cart.size === 0) return;
+
+            const entries = [...cart.values()].map(entry => ({ ...entry }));
+            const total = entries.reduce((sum, entry) =>
+                sum + getItemPrice(entry.itemIndex, entry.portion) * entry.quantity, 0);
+            if (!pickupBuilding.value) {
+                pickupBuilding.setCustomValidity("Select a pickup building before placing the order.");
+                pickupBuilding.reportValidity();
+                return;
+            }
+            pickupBuilding.setCustomValidity("");
+            placeOrderButton.disabled = true;
+            try {
+                await cartSaveQueue;
+                await sendCartRequest("/api/orders", "POST", {
+                    items: cartPayload(),
+                    pickup_location: pickupBuilding.value
+                });
+            } catch (error) {
+                showCartError(error);
+                renderCart();
+                return;
+            }
+            orderLocation.textContent = `Pickup location: LPU ${pickupBuilding.value}`;
+            orderItems.innerHTML = entries.map(entry => {
+                const item = menuItems[entry.itemIndex];
+                const unitPrice = getItemPrice(entry.itemIndex, entry.portion);
+                const lineTotal = unitPrice * entry.quantity;
+                return `
+                    <div class="cart-item">
+                        <div>
+                            <strong>${escapeHtml(item.name)}</strong>
+                            <span>${entry.portion === "half" ? "Half" : "Full"} plate × ${entry.quantity} · ₹${formatPrice(unitPrice)} each</span>
+                        </div>
+                        <strong>₹${formatPrice(lineTotal)}</strong>
+                    </div>
+                `;
+            }).join("");
+            orderTotal.textContent = `₹${formatPrice(total)}`;
+            cart.clear();
+            renderCart();
+            orderMessage.textContent =
+                "This is a demo order only; it was not sent to a canteen.";
+            orderReceipt.hidden = false;
+            orderReceipt.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        });
+
+        form.addEventListener("submit", event => {
+            event.preventDefault();
+            menuSearch.value = foodSearch.value;
+            renderMenu();
+            document.getElementById("canteens").scrollIntoView({ behavior: "smooth" });
+        });
+
+        foodSearch.addEventListener("input", () => {
+            menuSearch.value = foodSearch.value;
+            renderMenu();
+        });
+        menuSearch.addEventListener("input", () => {
+            foodSearch.value = menuSearch.value;
+            renderMenu();
+        });
+        categoryFilter.addEventListener("change", renderMenu);
+        pickupBuilding.addEventListener("change", () => {
+            saveCart().catch(showCartError);
+        });
+
+        renderMenu();
+        loadCart().then(renderCart).catch(error => {
+            showCartError(error);
+            renderCart();
+        });
+    </script>
+</body>
+</html>

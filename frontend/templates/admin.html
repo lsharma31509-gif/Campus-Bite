@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin dashboard | CampusBite</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="admin-page">
+    <nav class="navbar">
+        <a class="logo" href="{{ url_for('home') }}">Campus<span>Bite.</span></a>
+        <div class="nav-session">
+            <span class="nav-account-id">Admin · ID {{ admin_registration_id }}</span>
+            <a class="dashboard-link" href="{{ url_for('home') }}">Back to menu</a>
+            <form method="post" action="{{ url_for('logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                <button class="logout-button" type="submit">Log out</button>
+            </form>
+        </div>
+    </nav>
+
+    <main class="admin-main">
+        <header class="admin-heading">
+            <div>
+                <p class="eyebrow">CAMPUSBITE · LIVE STORE DATA</p>
+                <h1>Admin dashboard</h1>
+                <p class="subtitle">Your orders, revenue, sign-ins and live carts at a glance.</p>
+            </div>
+            <div class="admin-heading-actions">
+                <a class="dashboard-api-link" href="{{ url_for('admin_summary_api') }}" target="_blank" rel="noopener noreferrer">Open backend JSON ↗</a>
+                <a class="dashboard-refresh" href="{{ url_for('admin_dashboard') }}">Refresh data</a>
+            </div>
+        </header>
+        <p id="snapshotStatus" class="admin-note" role="status" aria-live="polite">
+            Updating backend/dashboard_output.json…
+        </p>
+
+        <section class="admin-charts" aria-label="Order and sales charts for the last seven days">
+            <article class="admin-chart-card">
+                <div class="admin-chart-heading">
+                    <div>
+                        <p class="admin-label">LAST 7 DAYS</p>
+                        <h2>Orders received</h2>
+                    </div>
+                    <span class="chart-total">
+                        {{ chart_days|sum(attribute="orders") }}
+                        <small>{{ "order" if chart_days|sum(attribute="orders") == 1 else "orders" }}</small>
+                    </span>
+                </div>
+                <div class="admin-bar-chart orders-chart"
+                     role="img"
+                     aria-label="Daily orders received over the last seven days">
+                    {% for day in chart_days %}
+                        <div class="chart-column" aria-label="{{ day.date }}: {{ day.orders }} orders">
+                            <span class="chart-value">{{ day.orders }}</span>
+                            <div class="chart-track">
+                                <span class="chart-bar" style="--bar-height: {{ day.orders_height }}%"></span>
+                            </div>
+                            <span class="chart-day">{{ day.label }}</span>
+                            <span class="chart-date">{{ day.date }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+            <article class="admin-chart-card">
+                <div class="admin-chart-heading">
+                    <div>
+                        <p class="admin-label">LAST 7 DAYS</p>
+                        <h2>Total order amount</h2>
+                    </div>
+                    <span class="chart-total">₹{{ "%.2f"|format(chart_days|sum(attribute="revenue")) }}</span>
+                </div>
+                <div class="admin-bar-chart revenue-chart"
+                     role="img"
+                     aria-label="Daily order amounts in rupees over the last seven days">
+                    {% for day in chart_days %}
+                        <div class="chart-column" aria-label="{{ day.date }}: ₹{{ "%.2f"|format(day.revenue) }}">
+                            <span class="chart-value">₹{{ "%.2f"|format(day.revenue) }}</span>
+                            <div class="chart-track">
+                                <span class="chart-bar" style="--bar-height: {{ day.revenue_height }}%"></span>
+                            </div>
+                            <span class="chart-day">{{ day.label }}</span>
+                            <span class="chart-date">{{ day.date }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </section>
+
+        <section class="admin-stats" aria-label="Store totals">
+            <article class="admin-stat">
+                <span>Registered accounts</span>
+                <strong>{{ stats.user_count }}</strong>
+                <small>All user accounts</small>
+            </article>
+            <article class="admin-stat">
+                <span>Successful sign-ins</span>
+                <strong>{{ stats.login_count }}</strong>
+                <small>{{ stats.logged_in_users }} unique users</small>
+            </article>
+            <article class="admin-stat">
+                <span>Orders placed</span>
+                <strong>{{ stats.order_count }}</strong>
+                <small>Demo orders saved</small>
+            </article>
+            <article class="admin-stat">
+                <span>Active carts</span>
+                <strong>{{ stats.active_cart_count }}</strong>
+                <small>Currently have items</small>
+            </article>
+            <article class="admin-stat">
+                <span>Order value</span>
+                <strong>₹{{ "%.2f"|format(stats.revenue) }}</strong>
+                <small>Illustrative totals, not payments</small>
+            </article>
+        </section>
+
+        <p class="admin-note">
+            Sign-in tracking starts when this dashboard is enabled. Order values are demo data;
+            payments and canteen fulfillment are not connected. Totals include all records;
+            lists show the latest 100 carts and orders and latest 30 sign-ins.
+        </p>
+
+        <section class="admin-section">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">WHAT PEOPLE ARE PICKING</p>
+                    <h2>Live carts <span class="admin-count">{{ active_carts|length }}</span></h2>
+                </div>
+            </div>
+            {% if active_carts %}
+                <div class="admin-card-grid">
+                    {% for cart in active_carts %}
+                        <article class="admin-data-card">
+                            <div class="admin-card-heading">
+                                <div>
+                                    <span class="admin-label">USER ID</span>
+                                    <strong>{{ cart.registration_id }}</strong>
+                                </div>
+                                <span class="admin-time">Updated {{ cart.updated_at }}</span>
+                            </div>
+                            {% if cart.pickup_location %}
+                                <p class="admin-cart-pickup">Pickup · {{ cart.pickup_location }}</p>
+                            {% endif %}
+                            <ul class="admin-item-list">
+                                {% set cart_total = namespace(value=0) %}
+                                {% for item in cart["items"] %}
+                                    {% set unit_price = item.base_price / 2 if item.portion == "half" else item.base_price %}
+                                    {% set cart_total.value = cart_total.value + unit_price * item.quantity %}
+                                    <li>
+                                        <span>
+                                            <strong>{{ item.name }}</strong>
+                                            <small>{{ item.portion|title }} plate · ×{{ item.quantity }}</small>
+                                        </span>
+                                        <strong>₹{{ "%.2f"|format(unit_price * item.quantity) }}</strong>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            <p class="admin-card-total">
+                                Cart total
+                                <strong>₹{{ "%.2f"|format(cart_total.value) }}</strong>
+                            </p>
+                        </article>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="admin-empty">No active carts right now. Cart contents appear here as users add items.</p>
+            {% endif %}
+        </section>
+
+        <section class="admin-section">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">RECENT ACTIVITY</p>
+                    <h2>Recent orders <span class="admin-count">{{ orders|length }}</span></h2>
+                </div>
+            </div>
+            {% if orders %}
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order</th>
+                                <th>User ID</th>
+                                <th>Items</th>
+                                <th>Pickup location</th>
+                                <th>Total</th>
+                                <th>Placed at</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td data-label="Order">#{{ order.id }}</td>
+                                    <td data-label="User ID">{{ order.registration_id }}</td>
+                                    <td data-label="Items">
+                                        <ul class="order-item-list">
+                                            {% for item in order["items"] %}
+                                                <li>{{ item.name }} · {{ item.portion }} ×{{ item.quantity }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </td>
+                                    <td data-label="Pickup">{{ order.pickup_location }}</td>
+                                    <td data-label="Total">₹{{ "%.2f"|format(order.total) }}</td>
+                                    <td data-label="Placed at">{{ order.created_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="admin-empty">No orders yet. Completed demo orders will show up here.</p>
+            {% endif %}
+        </section>
+
+        <section class="admin-section">
+            <div class="admin-section-heading">
+                <div>
+                    <p class="eyebrow">AUTHENTICATION ACTIVITY</p>
+                    <h2>Recent sign-ins <span class="admin-count">{{ logins|length }}</span></h2>
+                </div>
+            </div>
+            {% if logins %}
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr><th>User ID</th><th>Signed in at</th></tr>
+                        </thead>
+                        <tbody>
+                            {% for login in logins %}
+                                <tr>
+                                    <td data-label="User ID">{{ login.registration_id }}</td>
+                                    <td data-label="Signed in at">{{ login.logged_in_at }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="admin-empty">No sign-in events recorded yet.</p>
+            {% endif %}
+        </section>
+    </main>
+    <script>
+        fetch({{ url_for('admin_summary_api')|tojson }})
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Backend returned HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(() => {
+                document.getElementById("snapshotStatus").textContent =
+                    "Latest backend data saved to backend/dashboard_output.json.";
+            })
+            .catch(error => {
+                console.error("Could not save dashboard JSON snapshot:", error);
+                document.getElementById("snapshotStatus").textContent =
+                    "Could not save backend/dashboard_output.json. Open the backend JSON link to retry.";
+            });
+    </script>
+</body>
+</html>

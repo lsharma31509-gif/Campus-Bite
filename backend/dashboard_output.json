@@ -1,0 +1,283 @@
+{
+  "generated_at": "2026-11-09T17:49:56+05:30",
+  "totals": {
+    "registered_accounts": 1,
+    "successful_sign_ins": 13,
+    "unique_signed_in_users": 1,
+    "total_orders": 5,
+    "active_carts": 0,
+    "all_time_order_value": 935.0
+  },
+  "last_7_days": [
+    {
+      "date": "2026-11-03",
+      "label": "Tue",
+      "orders": 0,
+      "order_value": 0
+    },
+    {
+      "date": "2026-11-04",
+      "label": "Wed",
+      "orders": 3,
+      "order_value": 355.0
+    },
+    {
+      "date": "2026-11-05",
+      "label": "Thu",
+      "orders": 1,
+      "order_value": 380.0
+    },
+    {
+      "date": "2026-11-06",
+      "label": "Fri",
+      "orders": 0,
+      "order_value": 0
+    },
+    {
+      "date": "2026-11-07",
+      "label": "Sat",
+      "orders": 0,
+      "order_value": 0
+    },
+    {
+      "date": "2026-11-08",
+      "label": "Sun",
+      "orders": 0,
+      "order_value": 0
+    },
+    {
+      "date": "2026-11-09",
+      "label": "Mon",
+      "orders": 1,
+      "order_value": 200.0
+    }
+  ],
+  "active_carts": [],
+  "recent_orders": [
+    {
+      "id": 5,
+      "registration_id": "12513572",
+      "pickup_location": "Building 36 - Ground Floor",
+      "total": 200.0,
+      "created_at": "2026-11-09 17:43:42",
+      "items": [
+        {
+          "name": "Chocolate Shake",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 70.0
+        },
+        {
+          "name": "Chole Bhature",
+          "category": "meals",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 80.0
+        },
+        {
+          "name": "Fresh Lime Soda",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 35.0
+        },
+        {
+          "name": "Masala Chai",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 15.0
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "registration_id": "12513572",
+      "pickup_location": "Building 34 - Ground Floor",
+      "total": 380.0,
+      "created_at": "2026-11-05 11:14:07",
+      "items": [
+        {
+          "name": "Chocolate Shake",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 70.0
+        },
+        {
+          "name": "Classic Burger",
+          "category": "snacks",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 60.0
+        },
+        {
+          "name": "Cold Coffee",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 50.0
+        },
+        {
+          "name": "Fresh Lime Soda",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 35.0
+        },
+        {
+          "name": "Masala Chai",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 15.0
+        },
+        {
+          "name": "Paneer Roll",
+          "category": "meals",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 70.0
+        },
+        {
+          "name": "Veg Sandwich",
+          "category": "snacks",
+          "portion": "full",
+          "quantity": 2,
+          "base_price": 40.0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "registration_id": "12513572",
+      "pickup_location": "Building 30 - Ground Floor",
+      "total": 40.0,
+      "created_at": "2026-11-04 22:59:32",
+      "items": [
+        {
+          "name": "Veg Fried Rice",
+          "category": "meals",
+          "portion": "half",
+          "quantity": 1,
+          "base_price": 80.0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "registration_id": "12513572",
+      "pickup_location": "Building 30 - Ground Floor",
+      "total": 105.0,
+      "created_at": "2026-11-04 22:47:13",
+      "items": [
+        {
+          "name": "Chocolate Shake",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 70.0
+        },
+        {
+          "name": "Fresh Lime Soda",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 35.0
+        }
+      ]
+    },
+    {
+      "id": 1,
+      "registration_id": "12513572",
+      "pickup_location": "Building 30 - Ground Floor",
+      "total": 210.0,
+      "created_at": "2026-11-04 13:39:11",
+      "items": [
+        {
+          "name": "Cheese Pizza",
+          "category": "snacks",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 90.0
+        },
+        {
+          "name": "Chocolate Shake",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 70.0
+        },
+        {
+          "name": "Fresh Lime Soda",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 35.0
+        },
+        {
+          "name": "Masala Chai",
+          "category": "beverages",
+          "portion": "full",
+          "quantity": 1,
+          "base_price": 15.0
+        }
+      ]
+    }
+  ],
+  "recent_sign_ins": [
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-09 17:49:53"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-09 17:41:55"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-09 17:37:39"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-05 11:20:13"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 22:53:36"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 22:49:06"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 22:46:49"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 13:53:11"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 13:46:24"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-04 13:38:41"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-03 20:08:50"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-03 19:47:35"
+    },
+    {
+      "registration_id": "12513572",
+      "signed_in_at": "2026-11-03 19:27:17"
+    }
+  ]
+}
